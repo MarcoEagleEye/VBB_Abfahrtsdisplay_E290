@@ -1,0 +1,92 @@
+name: Build VBB E290 firmware
+on:
+  push:
+  workflow_dispatch:
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Assemble source from upstream + Berlin overlay
+        run: |
+          set -eux
+          curl -L https://github.com/Fluddel94/MVG_Abfahrtsdisplay_E290/archive/refs/heads/main.zip -o upstream.zip
+          unzip -q upstream.zip
+          mv MVG_Abfahrtsdisplay_E290-main MVG_Abfahrtsdisplay_E290
+          cp MVG_Abfahrtsdisplay_E290.ino config.h MVG_Abfahrtsdisplay_E290/
+          cp src/settings.h src/settings.cpp src/buttons.h src/buttons.cpp src/mvg_api.h src/mvg_api.cpp src/portal.h src/portal.cpp MVG_Abfahrtsdisplay_E290/src/
+          cp MVG_Abfahrtsdisplay_E290/README.md MVG_Abfahrtsdisplay_E290/README_UPSTREAM_MVG.md
+          cp VBB_Preview.html MVG_Abfahrtsdisplay_E290/
+          cp docs/index.html docs/manifest.json docs/manifest-mvg-migration.json MVG_Abfahrtsdisplay_E290/docs/
+          cp README.md README_BERLIN.md LICENSE_NOTE.md MVG_Abfahrtsdisplay_E290/
+          cp werkzeuge/firmware_fuer_installer.ps1 MVG_Abfahrtsdisplay_E290/werkzeuge/
+          rm -f MVG_Abfahrtsdisplay_E290/docs/firmware/firmware.bin MVG_Abfahrtsdisplay_E290/docs/firmware/bootloader.bin MVG_Abfahrtsdisplay_E290/docs/firmware/partitions.bin
+          python3 - <<'PY'
+          p='MVG_Abfahrtsdisplay_E290/src/display.cpp'
+          s=open(p,encoding='utf-8').read().replace('MVG Abfahrtsdisplay','VBB Abfahrtsdisplay').replace('MVG-Abfahrten aktuell','VBB-Abfahrten aktuell')
+          open(p,'w',encoding='utf-8').write(s)
+          p='MVG_Abfahrtsdisplay_E290/src/improv_serial.cpp'
+          s=open(p,encoding='utf-8').read().replace('#define IMPROV_FIRMWARE_NAME \"MVG Abfahrtsdisplay\"','#define IMPROV_FIRMWARE_NAME \"VBB Abfahrtsdisplay Berlin\"')
+          assert '#define IMPROV_FIRMWARE_NAME \"VBB Abfahrtsdisplay Berlin\"' in s, 'Improv firmware name patch failed'
+          open(p,'w',encoding='utf-8').write(s)
+          PY
+      - uses: arduino/setup-arduino-cli@v2
+      - name: Install ESP32 core and libraries
+        run: |
+          arduino-cli config init
+          arduino-cli config add board_manager.additional_urls https://espressif.github.io/arduino-esp32/package_esp32_index.json
+          arduino-cli core update-index
+          arduino-cli core install esp32:esp32@3.3.12
+          arduino-cli lib update-index
+          arduino-cli lib install "heltec-eink-modules@4.6.0"
+          arduino-cli lib install "ArduinoJson@7.4.3"
+      - name: Compile
+        run: |
+          mkdir -p build
+          arduino-cli compile --fqbn esp32:esp32:heltec_vision_master_e290 --output-dir "$PWD/build" "$PWD/MVG_Abfahrtsdisplay_E290"
+      - name: Prepare firmware files
+        run: |
+          set -eux
+          SITE="$PWD/site"
+          mkdir -p "$SITE/firmware"
+          cp MVG_Abfahrtsdisplay_E290/docs/index.html MVG_Abfahrtsdisplay_E290/docs/manifest.json MVG_Abfahrtsdisplay_E290/docs/manifest-mvg-migration.json "$SITE/"
+          FW=$(find build -maxdepth 1 -name '*.ino.bin' | head -1)
+          BL=$(find build -maxdepth 1 -name '*.bootloader.bin' | head -1)
+          PT=$(find build -maxdepth 1 -name '*.partitions.bin' | head -1)
+          BA=$(find ~/.arduino15/packages/esp32/hardware/esp32/3.3.12 -name boot_app0.bin | head -1)
+          test -n "$FW" -a -n "$BL" -a -n "$PT" -a -n "$BA"
+          cp "$FW" "$SITE/firmware/firmware.bin"
+          cp "$BL" "$SITE/firmware/bootloader.bin"
+          cp "$PT" "$SITE/firmware/partitions.bin"
+          cp "$BA" "$SITE/firmware/boot_app0.bin"
+          cp "$FW" firmware.bin
+          (cd MVG_Abfahrtsdisplay_E290 && zip -qr ../VBB_Abfahrtsdisplay_E290_source.zip .)
+      - uses: actions/upload-artifact@v4
+        with:
+          name: VBB-E290-build
+          path: |
+            firmware.bin
+            site/firmware/*.bin
+            VBB_Abfahrtsdisplay_E290_source.zip
+            site/index.html
+            site/manifest.json
+            site/manifest-mvg-migration.json
+      - uses: actions/upload-pages-artifact@v3
+        if: ${{ vars.DEPLOY_PAGES == 'true' }}
+        with:
+          path: site
+  deploy-pages:
+    if: ${{ vars.DEPLOY_PAGES == 'true' }}
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
