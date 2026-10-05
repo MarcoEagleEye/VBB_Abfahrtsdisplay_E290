@@ -1,5 +1,6 @@
 #pragma once
 #include <Arduino.h>
+#include <time.h>
 
 struct Departure {
   String line;
@@ -10,6 +11,8 @@ struct Departure {
   bool realtime;
   bool hasWarning;
   bool isBus;
+  bool multiDest;      // Kompatibel mit Original-Display: Ziel enthaelt mehrere Teilziele
+  time_t planned;      // geplante Abfahrt als Epoch-Zeit (fuer Minuten-/Ablauflogik im Display)
 };
 
 enum DirectionFilter { DIR_FILTER_H, DIR_FILTER_R, DIR_FILTER_ALL };

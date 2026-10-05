@@ -15,6 +15,20 @@ static String urlEncode(const String& text) {
 }
 static String bp(bool v){return v?"true":"false";}
 static String isoTime(const char* iso){if(!iso)return "--:--";String s(iso);int t=s.indexOf('T');return(t>=0&&s.length()>=(unsigned)(t+6))?s.substring(t+1,t+6):"--:--";}
+// VBB-Zeitstempel (z.B. 2026-10-05T21:44:00+02:00) in lokale Epoch-Zeit.
+// Das Original-Display nutzt Departure::planned u.a. fuer Minuten-/Ablauflogik.
+// Die Firmware setzt Europe/Berlin als lokale Zeitzone; mktime() beruecksichtigt
+// damit Sommer-/Winterzeit passend zu den lokalen VBB-Zeitstempeln.
+static time_t isoEpochLocal(const char* iso){
+  if(!iso || !*iso) return (time_t)0;
+  int y=0,mo=0,d=0,h=0,mi=0,se=0;
+  int n=sscanf(iso,"%d-%d-%dT%d:%d:%d",&y,&mo,&d,&h,&mi,&se);
+  if(n<5 || y<1970 || mo<1 || mo>12 || d<1 || d>31 || h<0 || h>23 || mi<0 || mi>59) return (time_t)0;
+  struct tm tmv={};
+  tmv.tm_year=y-1900; tmv.tm_mon=mo-1; tmv.tm_mday=d;
+  tmv.tm_hour=h; tmv.tm_min=mi; tmv.tm_sec=(n>=6?se:0); tmv.tm_isdst=-1;
+  return mktime(&tmv);
+}
 static JsonArray depArray(JsonDocument& doc){if(doc.is<JsonArray>())return doc.as<JsonArray>();if(doc["departures"].is<JsonArray>())return doc["departures"].as<JsonArray>();return JsonArray();}
 
 // VBB liefert je nach Backend-Version entweder direkt ein Array oder ein
@@ -66,7 +80,7 @@ static int parseInternal(const String& payload,const String* targetsJson,Departu
   JsonDocument doc;DeserializationError err=parseDepartureJson(doc,payload);if(err){Serial.printf("VBB JSON: %s\n",err.c_str());return -1;}JsonArray deps=depArray(doc);if(deps.isNull())return -1;
   JsonDocument td;JsonArray targets;bool useTargets=targetsJson!=nullptr;if(useTargets){if(deserializeJson(td,*targetsJson))return -1;targets=td.as<JsonArray>();if(targets.isNull()||targets.size()==0)return 0;}
   int count=0;for(JsonObject dep:deps){if(count>=maxResults)break;const char*ln=dep["line"]["name"]|"";const char*dr=dep["direction"]|"";if(!*ln||!*dr)continue;String destUtf8(dr);if(!targetAllowed(destUtf8,targets,useTargets))continue;
-    Departure d;d.line=String(ln);d.line.replace(" ","");d.destination=utf8ToLatin1(destUtf8);d.cancelled=dep["cancelled"]|false;const char*planned=dep["plannedWhen"];const char*actual=dep["when"];d.time=isoTime(planned?planned:actual);d.delayMin=0;d.realtime=false;if(!dep["delay"].isNull()){long sec=dep["delay"].as<long>();d.delayMin=sec>=0?(int)((sec+30)/60):(int)((sec-30)/60);if(d.delayMin<0&&-d.delayMin<EARLY_DEPARTURE_MIN)d.delayMin=0;d.realtime=true;}else if(planned&&actual&&strcmp(planned,actual))d.realtime=true;const char*product=dep["line"]["product"]|"";d.isBus=!strcmp(product,"bus");d.hasWarning=false;if(dep["remarks"].is<JsonArray>())for(JsonObject r:dep["remarks"].as<JsonArray>()){const char*t=r["type"]|"";if(!strcmp(t,"warning")){d.hasWarning=true;break;}}result[count++]=d;}
+    Departure d;d.line=String(ln);d.line.replace(" ","");d.destination=utf8ToLatin1(destUtf8);d.cancelled=dep["cancelled"]|false;const char*planned=dep["plannedWhen"];const char*actual=dep["when"];const char*baseTime=planned?planned:actual;d.time=isoTime(baseTime);d.planned=isoEpochLocal(baseTime);d.multiDest=destUtf8.indexOf('/')>=0;d.delayMin=0;d.realtime=false;if(!dep["delay"].isNull()){long sec=dep["delay"].as<long>();d.delayMin=sec>=0?(int)((sec+30)/60):(int)((sec-30)/60);if(d.delayMin<0&&-d.delayMin<EARLY_DEPARTURE_MIN)d.delayMin=0;d.realtime=true;}else if(planned&&actual&&strcmp(planned,actual))d.realtime=true;const char*product=dep["line"]["product"]|"";d.isBus=!strcmp(product,"bus");d.hasWarning=false;if(dep["remarks"].is<JsonArray>())for(JsonObject r:dep["remarks"].as<JsonArray>()){const char*t=r["type"]|"";if(!strcmp(t,"warning")){d.hasWarning=true;break;}}result[count++]=d;}
   return count;
 }
 int parseDepartures(const String& payload,DirectionFilter filter,Departure result[],int maxResults){(void)filter;return parseInternal(payload,nullptr,result,maxResults);}
