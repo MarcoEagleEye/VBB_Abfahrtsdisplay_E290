@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>VBB E290 Preview – Berlin</title>
+<style>
+body{font-family:system-ui;margin:24px;background:#eee;color:#111}.wrap{max-width:860px;margin:auto}.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}input,button,select{font:inherit;padding:8px}.results button{display:block;width:100%;text-align:left;margin:5px 0}.screen{width:592px;height:256px;max-width:100%;box-sizing:border-box;background:#f8f7ef;border:7px solid #222;border-radius:5px;margin-top:20px;padding:12px;overflow:hidden;font-family:Arial,sans-serif;filter:grayscale(1);position:relative}.head{font-size:26px;font-weight:700;border-bottom:2px solid #111;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-bottom:4px}.dep{display:grid;grid-template-columns:80px 1fr 80px;align-items:center;height:45px;border-bottom:1px solid #bbb;font-size:24px}.line{font-weight:800}.dest{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.time{text-align:right}.small{font-size:13px;color:#555}.checks{margin:12px 0}.checks label{margin-right:12px}.warn{font-size:16px}.buttons{width:592px;max-width:100%;display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:9px}.hwbtn{border:2px solid #333;border-radius:9px;background:#ddd;font-weight:700;user-select:none;touch-action:none}.hwbtn:active,.hwbtn.held{transform:translateY(2px);background:#bbb}.btnsub{display:block;font-size:11px;font-weight:400;color:#555}.overlay{height:190px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:22px}.overlay strong{font-size:28px}.info{font-size:18px;line-height:1.45}.qrbox{display:inline-grid;grid-template-columns:repeat(7,10px);gap:2px;background:#fff;padding:8px;border:2px solid #111;margin-right:18px;vertical-align:middle}.qrbox i{width:10px;height:10px;background:#111}.qrbox i.w{background:#fff}.screenfoot{position:absolute;right:8px;bottom:4px;font-size:10px;color:#555}.simopts,.directionBox,.stationBox{margin-top:12px;padding:12px;border:1px solid #bbb;background:#f7f7f7}.splash{font-size:23px;line-height:1.5}.splash strong{font-size:31px}.directionBox h3{margin:0 0 8px}.dirrow{display:grid;grid-template-columns:minmax(180px,1fr) 90px 90px 90px;gap:6px;align-items:center;padding:6px 0;border-bottom:1px solid #ddd}.dirrow label{margin:0}.dirlabels{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}.dirlabels label{font-size:13px}.dirlabels input{width:100%;box-sizing:border-box}.modebar{margin:12px 0}.empty{font-size:20px;padding:35px 5px;color:#444}.badge{display:inline-block;padding:2px 6px;border:1px solid #888;border-radius:10px;font-size:12px;margin-left:5px}.stationCards{display:grid;grid-template-columns:1fr 1fr;gap:8px}.stationCard{border:2px solid #bbb;border-radius:8px;padding:10px;background:#fff}.stationCard.active{border-color:#222}.stationCard b{display:block;margin-bottom:3px}.stationName{min-height:38px}.stationMeta{font-size:12px;color:#666}.stationCard button{margin-top:7px;width:100%}.stationBox h3{margin:0 0 8px}.slotPill{display:inline-block;padding:1px 7px;border:1px solid #777;border-radius:12px;font-size:11px;margin-left:6px}
+@media(max-width:650px){.dirrow{grid-template-columns:1fr 72px 72px 72px}.screen{height:250px}.dep{font-size:20px;grid-template-columns:65px 1fr 75px}.head{font-size:22px}.stationCards{grid-template-columns:1fr}}
+</style></head><body><div class="wrap">
+<h1>Berlin/VBB – E290 Preview</h1>
+<p class="small">Live-Vorschau über v6.vbb.transport.rest. Vier Haltestellen können unabhängig gespeichert und direkt mit BOOT durchgeschaltet werden.</p>
+
+<div class="stationBox">
+<h3>Bahnhof / Haltestelle suchen</h3>
+<div class="row"><input id="q" size="35" placeholder="z.B. Alexanderplatz"><select id="searchSlot"><option value="0">als Bahnhof 1</option><option value="1">als Bahnhof 2</option><option value="2">als Bahnhof 3</option><option value="3">als Bahnhof 4</option></select><button onclick="searchStops()">Suchen</button></div>
+<div id="results" class="results"></div>
+<div class="stationCards">
+  <div class="stationCard active" id="stationCard0"><b>Bahnhof 1 <span class="slotPill">aktiv</span></b><div class="stationName" id="stationName0">noch nicht gewählt</div><div class="stationMeta" id="stationMeta0"></div><button onclick="activateStation(0)">Bahnhof 1 anzeigen</button></div>
+  <div class="stationCard" id="stationCard1"><b>Bahnhof 2 <span class="slotPill" id="pill1" style="display:none">aktiv</span></b><div class="stationName" id="stationName1">noch nicht gewählt</div><div class="stationMeta" id="stationMeta1"></div><button onclick="activateStation(1)">Bahnhof 2 anzeigen</button></div>
+  <div class="stationCard" id="stationCard2"><b>Bahnhof 3 <span class="slotPill" id="pill2" style="display:none">aktiv</span></b><div class="stationName" id="stationName2">noch nicht gewählt</div><div class="stationMeta" id="stationMeta2"></div><button onclick="activateStation(2)">Bahnhof 3 anzeigen</button></div>
+  <div class="stationCard" id="stationCard3"><b>Bahnhof 4 <span class="slotPill" id="pill3" style="display:none">aktiv</span></b><div class="stationName" id="stationName3">noch nicht gewählt</div><div class="stationMeta" id="stationMeta3"></div><button onclick="activateStation(3)">Bahnhof 4 anzeigen</button></div>
+</div>
+</div>
+
+<div class="checks">
+<label><input type="checkbox" id="suburban" checked>S-Bahn</label><label><input type="checkbox" id="subway" checked>U-Bahn</label><label><input type="checkbox" id="tram" checked>Tram</label><label><input type="checkbox" id="bus" checked>Bus</label><label><input type="checkbox" id="regional" checked>Regional</label>
+<button onclick="refresh()">Aktualisieren</button>
+</div>
+<div class="modebar"><label><b>Anzeige:</b> <select id="viewMode" onchange="viewModeChanged()"><option value="mixed">Alle Richtungen gemischt</option><option value="directions">Getrennt: Richtung A / Richtung B</option></select></label></div>
+<div id="directionBox" class="directionBox" style="display:none">
+<h3>Richtungen für <span id="dirStationTitle">aktiven Bahnhof</span> zuordnen</h3>
+<p class="small">Jeder Bahnhof merkt sich seine eigene A/B-Zuordnung. BOOT kurz läuft durch alle belegten Ansichten: Bahnhof 1/A → 1/B → 2/A → 2/B → 3/A → 3/B → 4/A → 4/B → von vorn.</p>
+<div class="dirlabels"><label>Name Richtung A<input id="labelA" value="Richtung A" oninput="labelChanged('A')"></label><label>Name Richtung B<input id="labelB" value="Richtung B" oninput="labelChanged('B')"></label></div>
+<div class="row"><label>Standardansicht <select id="defaultDir" onchange="defaultDirectionChanged()"><option value="A">Richtung A</option><option value="B">Richtung B</option></select></label><button type="button" onclick="assignAlternating()">Testweise A/B verteilen</button><button type="button" onclick="clearDirections()">Zuordnung löschen</button></div>
+<div id="directionList" class="small" style="margin-top:8px">Erst eine Haltestelle laden.</div>
+</div>
+<div id="screen" class="screen"><div class="head" id="head">Keine Haltestelle gewählt</div><div id="deps"></div><div class="screenfoot" id="foot"></div></div>
+<div class="buttons">
+<button class="hwbtn" id="bootBtn">BOOT<span class="btnsub" id="bootSub">kurz: alle Ansichten durchschalten</span></button>
+<button class="hwbtn" id="midBtn">21<span class="btnsub">Mitte · kurz QR · 3 s Info</span></button>
+<button class="hwbtn" id="rstBtn" onclick="resetPress()">RST<span class="btnsub">rechts · Neustart</span></button>
+</div>
+<div class="simopts"><label><input type="checkbox" id="qrEnabled" checked> WLAN-QR-Funktion simulieren</label> &nbsp; <label>SSID <input id="qrSsid" value="Gast-WLAN" size="14"></label></div>
+<p id="status" class="small"></p>
+<p class="small"><b>Tipp:</b> Du kannst bis zu vier Bahnhöfe belegen. BOOT kurz läuft durch alle belegten Bahnhöfe: im Richtungsmodus jeweils A → B, im gemischten Modus jeweils Seite 1 → Seite 2. Nicht belegte Slots werden übersprungen.</p>
+</div><script>
+const API='https://v6.vbb.transport.rest';
+function newStationState(){return {stop:null,departures:[],page:0,activeDir:'A',dirAssignments:{},labelA:'Richtung A',labelB:'Richtung B',defaultDir:'A',lastUpdate:null}}
+let stations=[newStationState(),newStationState(),newStationState(),newStationState()], activeStation=0, overlay=null, pageTimer=null, overlayTimer=null, splashTimer=null;
+let midDownAt=0, midLongFired=false, midLongTimer=null;
+let bootDownAt=0, bootLongFired=false, bootLongTimer=null;
+function st(){return stations[activeStation]}
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function status(s){document.getElementById('status').textContent=s}
+function mode(){return document.getElementById('viewMode').value}
+function params(){return ['suburban','subway','tram','bus','regional'].map(x=>`${x}=${document.getElementById(x).checked}`).join('&')+'&express='+document.getElementById('regional').checked+'&ferry=false'}
+function dirLabel(which){let s=st();return (which==='A'?s.labelA:s.labelB).trim()||('Richtung '+which)}
+function defaultDirection(){return st().defaultDir}
+function selectedTargets(which){let s=st();return Object.keys(s.dirAssignments).filter(k=>s.dirAssignments[k]===which)}
+function updateStationCards(){for(let i=0;i<4;i++){let s=stations[i];document.getElementById('stationName'+i).textContent=s.stop?s.stop.name:'noch nicht gewählt';document.getElementById('stationMeta'+i).textContent=s.stop?`${s.stop.id} · ${s.departures.length} Abfahrten`:' ';let card=document.getElementById('stationCard'+i);card.classList.toggle('active',i===activeStation);let pill=card.querySelector('.slotPill');if(pill)pill.style.display=i===activeStation?'':'none'}
+ document.getElementById('dirStationTitle').textContent=st().stop?st().stop.name:`Bahnhof ${activeStation+1}`}
+function syncDirectionControls(){let s=st();document.getElementById('labelA').value=s.labelA;document.getElementById('labelB').value=s.labelB;document.getElementById('defaultDir').value=s.defaultDir;updateDirectionChoices()}
+async function searchStops(){let q=document.getElementById('q').value.trim(); if(!q)return; status('Suche…');
+ try{let r=await fetch(`${API}/locations?query=${encodeURIComponent(q)}&results=10&stops=true&addresses=false&poi=false&language=de&pretty=false`);let a=await r.json();let slot=Number(document.getElementById('searchSlot').value);
+ document.getElementById('results').innerHTML=a.filter(x=>x.type==='stop').map(x=>`<button onclick='choose(${slot},${JSON.stringify(x.id)},${JSON.stringify(x.name)})'><b>${esc(x.name)}</b> <span class=small>${esc(x.id)} · als Bahnhof ${slot+1}</span></button>`).join('');status(`${a.filter(x=>x.type==='stop').length} Treffer für Bahnhof ${slot+1}`)}catch(e){status('Fehler: '+e.message)}}
+function choose(slot,id,name){stations[slot]=newStationState();stations[slot].stop={id,name};activeStation=slot;document.getElementById('results').innerHTML='';overlay=null;clearTimeout(pageTimer);updateStationCards();syncDirectionControls();refresh()}
+async function activateStation(slot){if(slot===activeStation&&st().stop){renderCurrent();return}activeStation=slot;clearTimeout(pageTimer);overlay=null;let s=st();s.page=0;s.activeDir=s.defaultDir;updateStationCards();syncDirectionControls();renderCurrent();if(s.stop)await refresh();else status(`Bahnhof ${slot+1} ist noch nicht belegt.`)}
+async function refresh(){let s=st();if(!s.stop){renderCurrent();return}status(`Lade Abfahrten für Bahnhof ${activeStation+1}…`);
+ try{let r=await fetch(`${API}/stops/${encodeURIComponent(s.stop.id)}/departures?duration=90&results=60&remarks=true&language=de&pretty=false&${params()}`);let j=await r.json();s.departures=(Array.isArray(j)?j:(j.departures||[]));s.lastUpdate=new Date();updateDirectionChoices();updateStationCards();if(!overlay)renderCurrent();status(`Bahnhof ${activeStation+1}: Live ${s.lastUpdate.toLocaleTimeString('de-DE')} · ${s.departures.length} Abfahrten`)}catch(e){status('Fehler: '+e.message)}}
+function allTargets(){let seen=new Set(),out=[];for(let d of st().departures){let z=(d.direction||'').trim();if(z&&!seen.has(z)){seen.add(z);out.push(z)}}return out}
+function updateDirectionChoices(){let s=st(),targets=allTargets();for(let old of Object.keys(s.dirAssignments))if(!targets.includes(old))delete s.dirAssignments[old];let box=document.getElementById('directionList');if(!s.stop){box.textContent='Erst eine Haltestelle laden.';return}if(!targets.length){box.textContent='Keine Ziele in den aktuellen Abfahrten gefunden.';return}
+ box.innerHTML=targets.map((z,i)=>{let a=s.dirAssignments[z]||'';return `<div class="dirrow"><div><b>${esc(z)}</b><span class="badge">${esc(linesForTarget(z))}</span></div><label><input type="radio" name="dir_${activeStation}_${i}" ${a==='A'?'checked':''} onchange='setDir(${JSON.stringify(z)},"A")'> A</label><label><input type="radio" name="dir_${activeStation}_${i}" ${a==='B'?'checked':''} onchange='setDir(${JSON.stringify(z)},"B")'> B</label><label><input type="radio" name="dir_${activeStation}_${i}" ${a===''?'checked':''} onchange='setDir(${JSON.stringify(z)},"")'> ignor.</label></div>`}).join('')}
+function linesForTarget(z){let set=new Set(st().departures.filter(d=>d.direction===z).map(d=>(d.line?.name||'').replaceAll(' ','')));return [...set].slice(0,5).join(', ')}
+function setDir(target,which){let s=st();s.dirAssignments[target]=which;if(which==='')delete s.dirAssignments[target];autoDirectionNames();syncDirectionControls();renderCurrent()}
+function labelChanged(which){let s=st(),v=document.getElementById(which==='A'?'labelA':'labelB').value;s[which==='A'?'labelA':'labelB']=v;renderCurrent()}
+function autoDirectionNames(){let s=st();for(let which of ['A','B']){let targets=selectedTargets(which),key=which==='A'?'labelA':'labelB',v=s[key].trim(),generic=v===''||/^Richtung [AB]$/.test(v);if(generic&&targets.length===1)s[key]=targets[0];else if(generic&&targets.length!==1)s[key]='Richtung '+which}}
+function assignAlternating(){let s=st();allTargets().forEach((z,i)=>s.dirAssignments[z]=i%2===0?'A':'B');autoDirectionNames();syncDirectionControls();renderCurrent()}
+function clearDirections(){let s=st();s.dirAssignments={};s.labelA='Richtung A';s.labelB='Richtung B';syncDirectionControls();renderCurrent()}
+function viewModeChanged(){clearTimeout(pageTimer);for(let s of stations){s.page=0;s.activeDir=s.defaultDir}document.getElementById('directionBox').style.display=mode()==='directions'?'':'none';document.getElementById('bootSub').textContent=mode()==='directions'?'kurz: B1/A → … → B4/B':'kurz: B1/S1 → … → B4/S2';syncDirectionControls();renderCurrent()}
+function defaultDirectionChanged(){let s=st();s.defaultDir=document.getElementById('defaultDir').value;if(mode()==='directions'){s.activeDir=s.defaultDir;renderCurrent()}}
+function departuresForCurrentView(){let s=st();if(mode()==='mixed')return s.departures.slice(s.page*4,s.page*4+4);let targets=new Set(selectedTargets(s.activeDir));return s.departures.filter(d=>targets.has((d.direction||'').trim())).slice(0,4)}
+function renderCurrent(){if(overlay)return renderOverlay();let head=document.getElementById('head'),foot=document.getElementById('foot'),s=st();updateStationCards();if(!s.stop){head.textContent=`Bahnhof ${activeStation+1}: nicht belegt`;document.getElementById('deps').innerHTML='<div class="empty">Bitte oben eine Haltestelle für diesen Bahnhof auswählen.</div>';foot.textContent=`Bahnhof ${activeStation+1}/4`;return}
+ if(mode()==='directions'){head.textContent=`${s.stop.name} → ${dirLabel(s.activeDir)}`;let targets=selectedTargets(s.activeDir);if(!targets.length){document.getElementById('deps').innerHTML=`<div class="empty">Für ${esc(dirLabel(s.activeDir))} sind noch keine Ziele ausgewählt.</div>`}else renderDeps(departuresForCurrentView());foot.textContent=`B${activeStation+1} · ${s.activeDir} · ${targets.length} Ziel${targets.length===1?'':'e'}`}
+ else{head.textContent=s.stop.name;renderDeps(departuresForCurrentView());foot.textContent=`B${activeStation+1} · ${s.page?'Seite 2 · Abfahrt 5–8':'Seite 1 · Abfahrt 1–4'}`}}
+function renderDeps(a){document.getElementById('deps').innerHTML=a.length?a.map(d=>{let iso=d.plannedWhen||d.when||'';let t=iso.match(/T(\d\d:\d\d)/)?.[1]||'--:--';let delay=d.delay==null?0:Math.round(d.delay/60);let warn=(d.remarks||[]).some(r=>r.type==='warning');let suffix=delay?` <small>${delay>0?'+':''}${delay}</small>`:'';let strike=d.cancelled?'text-decoration:line-through':'';return `<div class=dep><div class=line>${esc((d.line?.name||'').replaceAll(' ',''))}</div><div class=dest>${warn?'<span class=warn>⚠ </span>':''}${esc(d.direction||'')}</div><div class=time style="${strike}">${esc(t)}${suffix}</div></div>`}).join(''):'<div class="empty">Keine passenden Abfahrten.</div>'}
+function occupiedStations(){return stations.map((s,i)=>s.stop?i:-1).filter(i=>i>=0)}
+function nextOccupiedStation(from){let occ=occupiedStations();if(!occ.length)return from;let pos=occ.indexOf(from);return occ[(pos<0?0:pos+1)%occ.length]}
+async function returnHome(){let occ=occupiedStations();if(!occ.length)return;activeStation=occ[0];for(let s of stations){s.page=0;s.activeDir=s.defaultDir}updateStationCards();syncDirectionControls();if(st().stop)await refresh();else renderCurrent();status('Auto-Reset nach 30 s: zurück zur Standardansicht.')}
+async function bootShort(){if(overlay){status('BOOT wird in diesem Bildschirm ignoriert.');return}if(!st().stop)return;clearTimeout(pageTimer);let oldStation=activeStation;
+ if(mode()==='directions'){
+   let s=st();
+   if(s.activeDir==='A'){s.activeDir='B';renderCurrent()}
+   else{let next=nextOccupiedStation(activeStation);activeStation=next;st().activeDir='A';updateStationCards();syncDirectionControls();if(next!==oldStation)await refresh();else renderCurrent()}
+   status(`BOOT: Bahnhof ${activeStation+1} · ${dirLabel(st().activeDir)}`)
+ }else{
+   let s=st();
+   if(s.page===0){s.page=1;renderCurrent()}
+   else{let next=nextOccupiedStation(activeStation);activeStation=next;st().page=0;updateStationCards();syncDirectionControls();if(next!==oldStation)await refresh();else renderCurrent()}
+   status(`BOOT: Bahnhof ${activeStation+1} · Seite ${st().page+1}`)
+ }
+ pageTimer=setTimeout(()=>{returnHome()},30000)
+}
+async function bootLong(){bootLongFired=true;let target=nextOccupiedStation(activeStation);await activateStation(target);status(`BOOT 2 s: direkt zu Bahnhof ${target+1}${st().stop?' – '+st().stop.name:''}`)}
+function fakeQr(){let bits='111011110100011101110101010111011101000101111010111010111';return '<span class="qrbox">'+[...bits].map(x=>`<i class="${x==='0'?'w':''}"></i>`).join('')+'</span>'}
+function midShort(){if(!document.getElementById('qrEnabled').checked){status('Mittlere Taste kurz: WLAN-QR ist deaktiviert.');return}if(overlay==='qr'){overlay=null;clearTimeout(overlayTimer);renderCurrent();status('QR-Anzeige manuell beendet.');return}overlay='qr';renderOverlay();clearTimeout(overlayTimer);overlayTimer=setTimeout(()=>{overlay=null;renderCurrent();status('QR-Anzeige nach 60 s beendet.');},60000);status('Mittlere Taste kurz: WLAN-QR für 60 s.')}
+function midLong(){midLongFired=true;if(overlay==='info'){overlay=null;clearTimeout(overlayTimer);renderCurrent();status('System-Info manuell beendet.');return}overlay='info';renderOverlay();clearTimeout(overlayTimer);overlayTimer=setTimeout(()=>{overlay=null;renderCurrent();status('System-Info nach 60 s beendet.');},60000);status('Mittlere Taste 3 s: System-Info; Portal 30 Minuten geöffnet.')}
+function renderOverlay(){let head=document.getElementById('head'),deps=document.getElementById('deps'),foot=document.getElementById('foot');foot.textContent='';if(overlay==='qr'){head.textContent='WLAN';deps.innerHTML=`<div class="overlay"><div>${fakeQr()}<span><strong>${esc(document.getElementById('qrSsid').value||'Gast-WLAN')}</strong><br><span class="small">QR-Code zum Verbinden</span></span></div></div>`}else if(overlay==='info'){head.textContent='System-Info';deps.innerHTML=`<div class="overlay info"><div><b>VBB Abfahrtsdisplay</b><br>Bahnhof: ${activeStation+1}/4<br>IP: 192.168.178.42<br>Portal: offen (30 min)<br>WLAN-Abbrüche: 0 · API-Fehler: 0<br><span class="small">Langdruck erneut = zurück</span></div></div>`}else if(overlay==='splash'){head.textContent='';deps.innerHTML='<div class="overlay splash"><div><strong>VBB Abfahrtsdisplay</strong><br>Berlin · E290<br><span class="small">Start…</span></div></div>'}}
+function resetPress(){clearTimeout(pageTimer);clearTimeout(overlayTimer);clearTimeout(splashTimer);for(let s of stations){s.page=0;s.activeDir=s.defaultDir}let occ=occupiedStations();activeStation=occ.length?occ[0]:0;overlay='splash';updateStationCards();syncDirectionControls();renderOverlay();status('RST: Gerät startet neu – Startbildschirm 5 Sekunden.');splashTimer=setTimeout(async()=>{overlay=null;if(st().stop)await refresh();else renderCurrent();status('Neustart abgeschlossen.');},5000)}
+const mid=document.getElementById('midBtn');
+function midStart(e){e.preventDefault();mid.classList.add('held');midDownAt=Date.now();midLongFired=false;clearTimeout(midLongTimer);midLongTimer=setTimeout(()=>{if(midDownAt)midLong()},3000)}
+function midEnd(e){e.preventDefault();mid.classList.remove('held');if(!midDownAt)return;clearTimeout(midLongTimer);let dur=Date.now()-midDownAt;midDownAt=0;if(!midLongFired&&dur<3000)midShort()}
+mid.addEventListener('pointerdown',midStart);mid.addEventListener('pointerup',midEnd);mid.addEventListener('pointercancel',midEnd);mid.addEventListener('pointerleave',e=>{if(midDownAt&&e.buttons===0)midEnd(e)});
+const boot=document.getElementById('bootBtn');
+function bootStart(e){e.preventDefault();boot.classList.add('held');bootDownAt=Date.now();bootLongFired=false;clearTimeout(bootLongTimer);bootLongTimer=setTimeout(()=>{if(bootDownAt)bootLong()},2000)}
+function bootEnd(e){e.preventDefault();boot.classList.remove('held');if(!bootDownAt)return;clearTimeout(bootLongTimer);let dur=Date.now()-bootDownAt;bootDownAt=0;if(!bootLongFired&&dur<2000)bootShort()}
+boot.addEventListener('pointerdown',bootStart);boot.addEventListener('pointerup',bootEnd);boot.addEventListener('pointercancel',bootEnd);boot.addEventListener('pointerleave',e=>{if(bootDownAt&&e.buttons===0)bootEnd(e)});
+document.getElementById('q').addEventListener('keydown',e=>{if(e.key==='Enter')searchStops()});
+updateStationCards();viewModeChanged();
+</script></body></html>
