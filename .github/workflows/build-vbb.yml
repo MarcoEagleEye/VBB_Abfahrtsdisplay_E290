@@ -14,9 +14,11 @@ jobs:
       - name: Assemble source from upstream + Berlin overlay
         run: |
           set -eux
-          curl -L https://github.com/Fluddel94/MVG_Abfahrtsdisplay_E290/archive/refs/heads/main.zip -o upstream.zip
+          # Auf einen festen Upstream-Release pinnen. "main" hat sich waehrend unseres
+          # ersten Builds geaendert und dadurch die Departure-Struktur gebrochen.
+          curl -L https://github.com/Fluddel94/MVG_Abfahrtsdisplay_E290/archive/refs/tags/v2.2.0.zip -o upstream.zip
           unzip -q upstream.zip
-          mv MVG_Abfahrtsdisplay_E290-main MVG_Abfahrtsdisplay_E290
+          mv MVG_Abfahrtsdisplay_E290-2.2.0 MVG_Abfahrtsdisplay_E290
           cp MVG_Abfahrtsdisplay_E290.ino config.h MVG_Abfahrtsdisplay_E290/
           cp src/settings.h src/settings.cpp src/buttons.h src/buttons.cpp src/mvg_api.h src/mvg_api.cpp src/portal.h src/portal.cpp MVG_Abfahrtsdisplay_E290/src/
           cp MVG_Abfahrtsdisplay_E290/README.md MVG_Abfahrtsdisplay_E290/README_UPSTREAM_MVG.md
