@@ -1,0 +1,10 @@
+Build-Fix fuer 3.0.3a
+
+Fehler:
+  'WiFi' was not declared in this scope
+
+Korrektur:
+  src/mvg_api.cpp enthaelt jetzt explizit:
+    #include <WiFi.h>
+
+Keine weitere Logik wurde veraendert.
