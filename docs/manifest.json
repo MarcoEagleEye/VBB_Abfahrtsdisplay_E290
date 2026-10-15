@@ -1,6 +1,6 @@
 {
   "name": "VBB Abfahrtsdisplay Berlin",
-  "version": "3.0.0-vbb",
+  "version": "3.0.3-vbb",
   "new_install_prompt_erase": true,
   "builds": [
     {
