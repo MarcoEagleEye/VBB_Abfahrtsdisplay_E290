@@ -1,0 +1,21 @@
+VBB E290 3.0.3 - Dateien im GitHub-Repo pfadgleich ERSETZEN
+
+MVG_Abfahrtsdisplay_E290.ino
+config.h
+.github/workflows/build-vbb.yml
+src/mvg_api.h
+src/mvg_api.cpp
+src/portal.cpp
+src/display.h
+src/display.cpp
+docs/manifest.json
+docs/manifest-mvg-migration.json
+
+VOR dem Build pruefen:
+1. MVG_Abfahrtsdisplay_E290.ino muss enthalten:
+   #define FW_VERSION "3.0.3-vbb"
+2. .github/workflows/build-vbb.yml muss in der cp-Zeile auch enthalten:
+   src/display.h src/display.cpp
+3. src/portal.cpp muss den Abschnitt "WLAN ändern" enthalten.
+
+Erst danach GitHub Actions laufen lassen.

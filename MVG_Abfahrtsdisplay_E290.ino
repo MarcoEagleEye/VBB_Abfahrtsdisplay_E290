@@ -1,6 +1,6 @@
 // Berlin/VBB Edition based on MVG_Abfahrtsdisplay_E290
 // Compatible OTA marker is retained inside src/portal.cpp so updates from the original project can be accepted.
-#define FW_VERSION "3.0.3-vbb"
+#define FW_VERSION "3.0.3a-vbb"
 
 #include "WiFi.h"
 #include <HTTPClient.h>
@@ -62,7 +62,18 @@ static void startFallbackAp(){
     if(!splashShowing())showFallbackApScreen();
   }else Serial.println("Setup-AP konnte nicht gestartet werden");
 }
-static void stopFallbackAp(){if(!fallbackApActive)return;WiFi.softAPdisconnect(true);fallbackApActive=false;Serial.println("Setup-AP beendet");}
+static void stopFallbackAp(){
+  if(!fallbackApActive)return;
+  WiFi.softAPdisconnect(true);
+  // softAPdisconnect() beendet nur den AP; der Funkmodus kann sonst auf
+  // WIFI_AP_STA stehen bleiben. Nach erfolgreicher STA-Verbindung deshalb
+  // explizit in den normalen Client-Modus zurückschalten.
+  WiFi.mode(WIFI_STA);
+  WiFi.setAutoReconnect(true);
+  fallbackApActive=false;
+  delay(100);
+  Serial.printf("Setup-AP beendet; WLAN-Modus STA, IP %s, RSSI %d dBm\n",WiFi.localIP().toString().c_str(),WiFi.RSSI());
+}
 
 static void refreshStationNames(){
   for(int i=0;i<MAX_STATIONS;i++){

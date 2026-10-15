@@ -1,0 +1,9 @@
+VBB E290 3.0.3a Hotfix
+
+- Recovery-AP: nach erfolgreicher Verbindung explizit WIFI_AP_STA -> WIFI_STA.
+- WLAN-Boot-Wartezeit 12s -> 30s.
+- Recovery-AP-Verzögerung 45s -> 60s.
+- HTTP User-Agent testweise identisch zum zuvor stabil getesteten 3.0.1-Pfad.
+- Vor jedem API-Abruf werden WLAN-Modus, RSSI, IP und Heap geloggt.
+
+Nach GitHub-Build per OTA nur firmware.bin einspielen; Einstellungen bleiben erhalten.

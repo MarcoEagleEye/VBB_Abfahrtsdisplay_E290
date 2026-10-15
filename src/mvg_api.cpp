@@ -68,6 +68,9 @@ static bool httpGetJson(const String& url, String& payloadOut, const char* label
   h.setReuse(false);
   h.useHTTP10(true);
 
+  Serial.printf("%s: WLAN mode=%d, RSSI=%d dBm, IP=%s, Heap=%u\n",
+                label, (int)WiFi.getMode(), WiFi.RSSI(), WiFi.localIP().toString().c_str(), (unsigned)ESP.getFreeHeap());
+
   if (!h.begin(url)) {
     Serial.printf("%s: HTTP begin fehlgeschlagen\n", label);
     return false;
@@ -75,7 +78,7 @@ static bool httpGetJson(const String& url, String& payloadOut, const char* label
 
   h.addHeader("Accept", "application/json");
   h.addHeader("Accept-Encoding", "identity");
-  h.addHeader("User-Agent", "VBB-E290/3.0.3");
+  h.addHeader("User-Agent", "VBB-E290/3.0.1"); // identisch zum zuvor stabil getesteten Request-Pfad
 
   int code = h.GET();
   int announced = h.getSize();
