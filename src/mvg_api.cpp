@@ -75,7 +75,7 @@ static bool httpGetJson(const String& url, String& payloadOut, const char* label
 
   h.addHeader("Accept", "application/json");
   h.addHeader("Accept-Encoding", "identity");
-  h.addHeader("User-Agent", "VBB-E290/3.0.1");
+  h.addHeader("User-Agent", "VBB-E290/3.0.3");
 
   int code = h.GET();
   int announced = h.getSize();
